@@ -17,14 +17,14 @@ RUN apt-get update && LC_ALL=en_US.UTF-8 apt-get install -y postgresql-9.3
 # (@andrewgodwin says it's something AUFS related)
 RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; rm -r /etc/ssl/private; mv /etc/ssl/private-copy /etc/ssl/private; chmod -R 0700 /etc/ssl/private; chown -R postgres /etc/ssl/private
 
-ADD postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
-ADD pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
- 
 RUN curl -o /usr/local/bin/gosu -SL 'https://github.com/tianon/gosu/releases/download/1.0/gosu' \
   && chmod +x /usr/local/bin/gosu
  
 ENV PATH /usr/lib/postgresql/9.3/bin:$PATH
 VOLUME /var/lib/postgresql
+ 
+ADD postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
+ADD pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
  
 ADD ./docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
