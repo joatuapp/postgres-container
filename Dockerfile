@@ -11,7 +11,7 @@ RUN apt-get update && LC_ALL=en_US.UTF-8 apt-get install -y curl
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' > /etc/apt/sources.list.d/pgdg.list
  
 RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update && LC_ALL=en_US.UTF-8 apt-get install -y postgresql-9.3
+RUN apt-get update && LC_ALL=en_US.UTF-8 apt-get install -y postgresql-9.3 pwgen inotify-tools
 
 # /etc/ssl/private can't be accessed from within container for some reason
 # (@andrewgodwin says it's something AUFS related)
@@ -21,13 +21,16 @@ RUN curl -o /usr/local/bin/gosu -SL 'https://github.com/tianon/gosu/releases/dow
   && chmod +x /usr/local/bin/gosu
  
 ENV PATH /usr/lib/postgresql/9.3/bin:$PATH
-VOLUME /var/lib/postgresql
+
+VOLUME ["/data", "/var/log/postgresql", "/etc/postgresql"]
  
 ADD postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
 ADD pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
  
-ADD ./docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
-CMD ["/docker-entrypoint.sh"]
-
 EXPOSE 5432
+
+ADD scripts /scripts
+RUN chmod +x /scripts/start.sh
+RUN touch /firstrun
+
+CMD ["/scripts/start.sh"]
